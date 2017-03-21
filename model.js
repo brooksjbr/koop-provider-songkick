@@ -13,8 +13,9 @@ function Model (koop) {}
 // This is the only public function you need to implement
 Model.prototype.getData = function (req, callback) {
   // Call the remote API with our developer key
-  const key = config.trimet.key
-  request(`https://developer.trimet.org/ws/v2/vehicles/onRouteOnly/false/appid/${key}`, (err, res, body) => {
+  const key = config.songkick.key
+  var url = `https://api.songkick.com/api/3.0/metro_areas/1409/calendar.json?apikey=${key}`
+  request(url, (err, res, body) => {
     if (err) return callback(err)
     // translate the response into geojson
     const geojson = translate(body)
@@ -27,26 +28,27 @@ Model.prototype.getData = function (req, callback) {
 
 function translate (input) {
   return {
-    type: 'FeatureCollection',
-    features: input.resultSet.vehicle.map(formatFeature)
+   type: 'FeatureCollection',
+   features: input.resultsPage.results.event.map(formatFeature)
   }
 }
 
-function formatFeature (vehicle) {
+function formatFeature (event) {
   // Most of what we need to do here is extract the longitude and latitude
   const feature = {
     type: 'Feature',
-    properties: vehicle,
+    properties: event,
     geometry: {
       type: 'Point',
-      coordinates: [vehicle.longitude, vehicle.latitude]
+      coordinates: [event.venue.lng, event.venue.lat]
     }
   }
   // But we also want to translate a few of the date fields so they are easier to use downstream
-  const dateFields = ['expires', 'serviceDate', 'time']
-  dateFields.forEach(field => {
-    feature.properties[field] = new Date(feature.properties[field]).toISOString()
-  })
+  //const dateFields = ['expires', 'serviceDate', 'time']
+  //dateFields.forEach(field => {
+  //   feature.properties[field] = new Date(feature.properties[field]).toISOString()
+  // })
+  console.log(feature)
   return feature
 }
 
