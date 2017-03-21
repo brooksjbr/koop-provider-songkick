@@ -28,8 +28,8 @@ Model.prototype.getData = function (req, callback) {
 
 function translate (input) {
   return {
-   type: 'FeatureCollection',
-   features: input.resultsPage.results.event.map(formatFeature)
+    type: 'FeatureCollection',
+    features: input.resultsPage.results.event.map(formatFeature)
   }
 }
 
@@ -37,18 +37,16 @@ function formatFeature (event) {
   // Most of what we need to do here is extract the longitude and latitude
   const feature = {
     type: 'Feature',
-    properties: event,
+    properties: {
+      artist: event.performance[0].displayName,
+      venue: event.displayName
+    },
     geometry: {
       type: 'Point',
       coordinates: [event.venue.lng, event.venue.lat]
     }
   }
-  // But we also want to translate a few of the date fields so they are easier to use downstream
-  //const dateFields = ['expires', 'serviceDate', 'time']
-  //dateFields.forEach(field => {
-  //   feature.properties[field] = new Date(feature.properties[field]).toISOString()
-  // })
-  console.log(feature)
+
   return feature
 }
 
