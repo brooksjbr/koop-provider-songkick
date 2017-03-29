@@ -21,22 +21,21 @@ Model.prototype.getData = function (req, callback) {
     const geojson = translate(body)
     // Cache data for 10 seconds at a time by setting the ttl or "Time to Live"
     geojson.ttl = 10
+    console.log()
     // hand off the data to Koop
     callback(null, geojson)
   })
 }
 
+function hasCoordinates(event) {
+  return event.venue.lng && event.venue.lat
+}
+
 function translate (input) {
-  console.log(input)
-  const features = input.resultsPage.results.event.filter((event) => {
-    if (!!event.venue.lng && !!event.venue.lat) {
-      return formatFeature(event)
-    }
-  });
-console.log();  
+  const events = input.resultsPage.results.event.filter(hasCoordinates)
   return {
     type: 'FeatureCollection',
-    features: features
+    features: events.map(formatFeature)
   }
 }
 
