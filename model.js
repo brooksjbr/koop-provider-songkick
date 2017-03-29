@@ -27,9 +27,16 @@ Model.prototype.getData = function (req, callback) {
 }
 
 function translate (input) {
+  console.log(input)
+  const features = input.resultsPage.results.event.filter((event) => {
+    if (!!event.venue.lng && !!event.venue.lat) {
+      return formatFeature(event)
+    }
+  });
+console.log();  
   return {
     type: 'FeatureCollection',
-    features: input.resultsPage.results.event.map(formatFeature)
+    features: features
   }
 }
 
@@ -38,8 +45,10 @@ function formatFeature (event) {
   const feature = {
     type: 'Feature',
     properties: {
-      artist: event.performance[0].displayName,
-      venue: event.displayName
+      artist: event.performance[0].artist.displayName,
+      venue: event.venue.displayName,
+      date: event.start.datetime,
+      start: event.start.time
     },
     geometry: {
       type: 'Point',
