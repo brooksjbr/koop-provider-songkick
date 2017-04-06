@@ -1,0 +1,10 @@
+{
+  "songkick": {
+		"api" : "https://api.songkick.com/api/3.0/"
+  },
+  "spotify": {
+  	"api" : "https://api.spotify.com",
+  	"embed" : "https://open.spotify.com/embed",
+  	"redirectUri" : "http://localhost:8888/callback"
+  }
+}

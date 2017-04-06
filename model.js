@@ -6,54 +6,105 @@
   Documentation: http://koopjs.github.io/docs/specs/provider/
 */
 const request = require('request').defaults({gzip: true, json: true})
+const SpotifyWebApi = require('spotify-web-api-node');
 const config = require('config')
+const Promise = require("bluebird");
+
 
 function Model (koop) {}
 
 // This is the only public function you need to implement
 Model.prototype.getData = function (req, callback) {
-  // Call the remote API with our developer key
-  const key = config.songkick.key
-  var url = `https://api.songkick.com/api/3.0/metro_areas/1409/calendar.json?apikey=${key}`
-  request(url, (err, res, body) => {
-    if (err) return callback(err)
-    // translate the response into geojson
-    const geojson = translate(body)
-    // Cache data for 10 seconds at a time by setting the ttl or "Time to Live"
-    geojson.ttl = 10
-    console.log()
-    // hand off the data to Koop
-    callback(null, geojson)
-  })
-}
 
-function hasCoordinates(event) {
-  return event.venue.lng && event.venue.lat
-}
-
-function translate (input) {
-  const events = input.resultsPage.results.event.filter(hasCoordinates)
-  return {
-    type: 'FeatureCollection',
-    features: events.map(formatFeature)
-  }
-}
-
-function formatFeature (event) {
-  // Most of what we need to do here is extract the longitude and latitude
-  const feature = {
-    type: 'Feature',
-    properties: {
-      artist: event.performance[0].artist.displayName,
-      venue: event.venue.displayName,
-      date: event.start.datetime,
-      start: event.start.time
+  const songkick = require('request-promise');
+  const options = {
+    uri: config.songkick.api+"metro_areas/1409/calendar.json",
+    qs: {
+      apikey: config.songkick.key
     },
-    geometry: {
-      type: 'Point',
-      coordinates: [event.venue.lng, event.venue.lat]
-    }
-  }
+    headers: {
+      'User-Agent': 'Request-Promise'
+    },
+    json: true
+  };
+
+  const events = songkick(options)
+    .then(function (data) {
+      return data.resultsPage.results.event.filter(validateEvent);
+    })
+    .catch(function (err) {
+      console.log("Something went wrong with Songkick request.")
+    });
+
+  translate(events)
+    .then(function(geojson) {
+      for (var i in geojson) {
+        console.log(geojson[i])
+      }
+    })
+    .catch(function (err) {
+      console.log("Something went wrong with FeatureCollection request.")
+    });
+}
+
+function validateEvent(event) {
+  return event.venue.lng && event.venue.lat && event.start.datetime && event.performance[0].artist.displayName
+}
+
+function translate (events) {
+  //console.log("Translate function")
+  const spotifyApi = new SpotifyWebApi({
+    clientId : config.spotify.clientId,
+    clientSecret : config.spotify.clientSecret
+  });
+
+  spotifyApi.clientCredentialsGrant()
+    .then(function(data) {
+      console.log('The access token expires in ' + data.body['expires_in']);
+      console.log('The access token is ' + data.body['access_token']);
+
+      // Save the access token so that it's used in future calls
+      spotifyApi.setAccessToken(data.body['access_token']);
+    }).catch(function(err) {
+      console.log('Unfortunately, something has gone wrong.', err.message);
+    });
+
+  return Promise.all(events.map((event) => formatFeature(event,spotifyApi)))
+}
+
+function formatFeature (event, client) {
+  const artist = event.performance[0].artist.displayName
+  const venue = event.venue.displayName
+  const ageRestriction = event.ageRestriction
+  const headerline = event.performance[0].billing
+  const options = { limit : 1, offset : 1 }
+
+  const spotify = client.searchArtists(artist,options)
+    .then(function(data) {
+      const uri = data.body.artists.items[0].uri
+      return `${config.spotify.embed}?uri=${uri}&theme=white`
+    })
+    .catch(function(err) {
+      return "No track available"
+    })
+
+  const feature = spotify
+    .then(function(link) {
+      return {
+        type: 'Feature',
+        properties: {
+          artist: artist,
+          venue: venue,
+          date: event.start.datetime,
+          start: event.start.time,
+          spotify: link
+        },
+        geometry: {
+          type: 'Point',
+          coordinates: [event.venue.lng, event.venue.lat]
+        }
+      }
+    })
 
   return feature
 }

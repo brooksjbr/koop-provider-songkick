@@ -13,7 +13,9 @@
   "dependencies": {
     "config": "^1.25.1",
     "koop": "^3.4.0",
-    "request": "^2.79.0"
+    "machinepack-spotify": "0.0.3",
+    "request": "^2.79.0",
+    "spotify-web-api-node": "^2.3.6"
   },
   "author": "Brooks Robertson",
   "license": "Apache-2.0",

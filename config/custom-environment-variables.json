@@ -1,10 +1,9 @@
 {
   "songkick": {
-    "key": "SONGKICK_KEY"
-  }
+    "key" : "SONGKICK_KEY"
+  },
   "spotify": {
   	"clientId" : "SPOTIFY_CLIENT_ID",
-  	"clientSecret" : "SPOTIFY_CLIENT_SECRET",
-  	"redirectUri" : ""
+  	"clientSecret" : "SPOTIFY_CLIENT_SECRET"
   }
 }
