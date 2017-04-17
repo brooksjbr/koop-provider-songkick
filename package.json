@@ -11,11 +11,16 @@
     "test": "standard && tape test/*.js | tap-spec"
   },
   "dependencies": {
+    "biased-opener": "^0.2.8",
     "config": "^1.25.1",
     "koop": "^3.4.0",
     "machinepack-spotify": "0.0.3",
+    "node-inspector": "^1.0.0",
     "request": "^2.79.0",
-    "spotify-web-api-node": "^2.3.6"
+    "request-promise": "^4.2.0",
+    "serve-favicon": "^2.4.2",
+    "spotify-web-api-node": "^2.3.6",
+    "strong-data-uri": "^1.0.4"
   },
   "author": "Brooks Robertson",
   "license": "Apache-2.0",
