@@ -35,8 +35,8 @@ Model.prototype.getData = function (req, callback) {
     .then(function(events) {
       return translate(events);
     })
-    .then(function(geojson) {
-      console.log(geojson)
+    .then(function(features) {
+      const geojson = {type: "FeatureCollection", features}
       callback(null,geojson);
     })
     .catch(function (err) {
@@ -68,7 +68,8 @@ function translate (events) {
       // Save the access token so that it's used in future calls
       spotifyApi.setAccessToken(data.body['access_token']);
       return Promise.all(events.map((event) => formatFeature(event,spotifyApi)));
-    }).catch(function(err) {
+    })
+    .catch(function(err) {
       console.log('Unfortunately, something has gone wrong.', err.message);
     });
 }
