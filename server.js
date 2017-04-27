@@ -16,12 +16,12 @@ const port = config.port || 8080
 koop.server.listen(port)
 const message = `
 
-Koop Sample Provider listening on ${port}
+Koop Songkick Provider listening on ${port}
 For more docs visit: https://koopjs.github.io/docs/specs/provider/
 To find providers visit: https://www.npmjs.com/search?q=koop+provider
 
-Try it out in your browswer: http://localhost:${port}/sample/FeatureServer/0/query
-Or on the command line: curl --silent http://localhost:${port}/sample/FeatureServer/0/query?returnCountOnly=true
+Try it out in your browswer: http://localhost:${port}/songkick/:metro_id/FeatureServer/0/query
+Or on the command line: curl --silent http://localhost:${port}/songkick/:metro_id/FeatureServer/0/query?returnCountOnly=true
 
 Press control + c to exit
 `
