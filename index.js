@@ -8,9 +8,9 @@
 
 const provider = {
   type: 'provider',
-  name: 'sample',
+  name: 'songkick',
   hosts: false,
-  disableIdParam: true,
+  disableIdParam: false,
   Controller: require('./controller'),
   Model: require('./model'),
   routes: require('./routes'),

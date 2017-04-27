@@ -16,8 +16,10 @@ function Model (koop) {}
 // This is the only public function you need to implement
 Model.prototype.getData = function (req, callback) {
 
+  const metro_id = req.params.id
+  
   const options = {
-    uri: config.songkick.api+"metro_areas/1409/calendar.json",
+    uri: config.songkick.api+"metro_areas/"+metro_id+"/calendar.json",
     qs: {
       apikey: config.songkick.key
     },
